@@ -10,7 +10,6 @@ from encryption import decrypt
 from .talk_to_sheets import create_row_in_sheets
 from expense import Expense
 from expense import ExpenseResponse
-from .data import sheets
 import json
 
 import inspect
@@ -28,6 +27,11 @@ sheets_router = APIRouter()
 def get_sheet_id(request: Request) -> str:
     auth_details = get_auth_details(request)
     print(f'{auth_details = }')
+
+
+
+    with open("sheet_ids.json", "r") as f:
+        sheets = json.load(f)
     
     sheet_id = sheets.get(auth_details, None)
     print(f'{sheet_id = }')
