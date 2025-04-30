@@ -25,9 +25,9 @@ client = gspread.Client(creds)
 
 
 
-def get_first_empty_transaction_row(sheet, month: str):
+def get_first_empty_transaction_row(worksheet):
     try:
-        server_data_section: str = sheet.worksheet(month).cell("2D").value
+        server_data_section: str = worksheet.cell("2D").value
         first_open_curly = server_data_section.find("{")
         last_close_curly = server_data_section.rfind("}")
         server_data = server_data_section[first_open_curly:last_close_curly+1]
@@ -40,7 +40,7 @@ def get_first_empty_transaction_row(sheet, month: str):
 
     empty_found = False
     while not empty_found:
-        row_values = sheet.worksheet(month).row_values(transactions_row_upto)
+        row_values = worksheet.row_values(transactions_row_upto)
         print(f'{transactions_row_upto = }')
         print(f'{row_values = }')
         if row_values == []:
@@ -105,14 +105,15 @@ month_map = {
 def create_row_in_sheets(expense: Expense, sheet_id):
     sheet = client.open_by_key(sheet_id)
     month_as_string: str = month_map[get_current_month()]
-    first_empty_transaction_row = get_first_empty_transaction_row(sheet, month_as_string)
-    sheet.worksheet(month_as_string).update(f"B{first_empty_transaction_row}:E{first_empty_transaction_row}", [[expense.date, expense.amount, expense.description, expense.category]])
+    worksheet = sheet.worksheet(month_as_string)
+    first_empty_transaction_row = get_first_empty_transaction_row(worksheet)
+    worksheet.update(f"B{first_empty_transaction_row}:E{first_empty_transaction_row}", [[expense.date, expense.amount, expense.description, expense.category]])
     # sheet.worksheet("Transactions").update_cell(first_empty_transaction_row, col_to_index["Date"], expense.date)
     # sheet.worksheet("Transactions").update_cell(first_empty_transaction_row, col_to_index["Amount"], expense.amount)
     # sheet.worksheet("Transactions").update_cell(first_empty_transaction_row, col_to_index["Description"], expense.description)
     # sheet.worksheet("Transactions").update_cell(first_empty_transaction_row, col_to_index["Category"], expense.category)
     SERVER_DATA_SECTION = f"SERVER DATA SECTION: {json.dumps({"next empty transaction row": first_empty_transaction_row + 1 })}"
-    sheet.worksheet(month_as_string).update_cell(2, 4, SERVER_DATA_SECTION)
+    worksheet.update_cell(2, 4, SERVER_DATA_SECTION)
 
 
 

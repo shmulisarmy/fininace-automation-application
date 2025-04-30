@@ -1,4 +1,5 @@
 import json
+import time
 from fastapi import APIRouter, HTTPException, Depends, responses, Request
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from pydantic import BaseModel
@@ -77,6 +78,8 @@ ALGORITHM = "HS256"
 
 @auth_router.post("/login")
 def login(username: str, password: str, request: Request):
+    print(f'{get_auth_details(request) = }')
+    
     conn = sqlite3.connect("expenses.db")
     cursor = conn.cursor()
     cursor.execute("SELECT id, password FROM users WHERE username = ?", (username,))
@@ -86,12 +89,18 @@ def login(username: str, password: str, request: Request):
     if not db_user or not verify_password(password, db_user[1]):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
-
-    access_token = encrypt(json.dumps({"sub": username}))
+    expires = time.time()+(60*60*24*7)
+    access_token = encrypt(json.dumps({"sub": username, "exp": expires}))
     response = responses.JSONResponse(content={"message": "cookie set"})
     print(f'{access_token = }')
     
-    response.set_cookie("access_token", access_token)
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,    # Prevent XSS attacks
+        secure=True,      # HTTPS only
+        samesite='Lax'    # CSRF protection
+    )
     return response
 
 
@@ -117,17 +126,6 @@ def read_current_user(request: Request) -> str:
 
 
 
-
-    conn = sqlite3.connect("expenses.db")
-    cursor = conn.cursor()
-    cursor.execute("SELECT id FROM users WHERE username = ?", (username,))
-    user = cursor.fetchone()
-    conn.close()
-
-    if user is None:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    return {"username": username, "id": user[0]}
 
 
 
