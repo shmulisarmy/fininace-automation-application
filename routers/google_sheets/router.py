@@ -27,9 +27,7 @@ sheets_router = APIRouter()
 
 def get_sheet_id(request: Request) -> str:
     auth_details = get_auth_details(request)
-    month: int = get_current_month()
     print(f'{auth_details = }')
-    print(f'{month = }')
     
     sheet_id = sheets.get(auth_details, None)
     print(f'{sheet_id = }')
