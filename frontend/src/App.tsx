@@ -3,8 +3,9 @@ import { createSignal, createEffect, onMount, For } from 'solid-js';
 import { createStore } from 'solid-js/store';
 import './App.css';
 import { Login } from './login';
+import { BACKEND_URL } from './settings';
 
-const API_URL = 'http://localhost:8000';
+
 
 function App() {
   const [expenses, setExpenses] = createStore([]);
@@ -24,8 +25,8 @@ function App() {
   onMount(async () => {
     try {
       const [expensesResponse, categoriesResponse] = await Promise.all([
-        fetch(`${API_URL}/expenses`),
-        fetch(`${API_URL}/categories`)
+        fetch(`${BACKEND_URL}/expenses`),
+        fetch(`${BACKEND_URL}/categories`)
       ]);
       
       const expensesData = await expensesResponse.json();
@@ -45,7 +46,7 @@ function App() {
     e.preventDefault();
     
     try {
-      const response = await fetch(`${API_URL}/expenses`, {
+      const response = await fetch(`${BACKEND_URL}/expenses`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -280,7 +281,7 @@ function App() {
         )}
       </div>
       <Login/>
-      {fetch(`${API_URL}/auth/me`, {credentials: "include"}).then(res => res.json()).then(data => console.log("from auth/me", data))}
+      {fetch(`${BACKEND_URL}/auth/me`, {credentials: "include"}).then(res => res.json()).then(data => console.log("from auth/me", data))}
     </div>
   );
 }

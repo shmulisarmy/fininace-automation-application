@@ -78,7 +78,9 @@ ALGORITHM = "HS256"
 
 @auth_router.post("/login")
 def login(username: str, password: str, request: Request):
-    print(f'{get_auth_details(request) = }')
+    print("at login")
+    print(f'{username = }')
+    print(f'{password = }')
     
     conn = sqlite3.connect("expenses.db")
     cursor = conn.cursor()
@@ -92,7 +94,6 @@ def login(username: str, password: str, request: Request):
     expires = time.time()+(60*60*24*7)
     access_token = encrypt(json.dumps({"sub": username, "exp": expires}))
     response = responses.JSONResponse(content={"message": "cookie set"})
-    print(f'{access_token = }')
     
     response.set_cookie(
         key="access_token",

@@ -57,7 +57,6 @@ def create_expense(expense: Expense, request: Request):
     # Set default date to today if not provided
     sheet_id = get_sheet_id(request)
     create_row_in_sheets(expense, sheet_id)
-    print(f'{expense = }')
     
     return {
         "id": 1,

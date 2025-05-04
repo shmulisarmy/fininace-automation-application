@@ -1,7 +1,7 @@
 import { createSignal } from "solid-js";
 
 
-const API_URL = "http://localhost:8000"
+const API_URL = "http://localhost:9090"
 
 export function Login(){
   const [username, setUsername] = createSignal("");
